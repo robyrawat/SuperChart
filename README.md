@@ -84,5 +84,9 @@ PieChart(
 
 ## License
 
-(To be determined)
+MIT License
+
+Copyright (c) 2026 robyrawat
+
+
 
