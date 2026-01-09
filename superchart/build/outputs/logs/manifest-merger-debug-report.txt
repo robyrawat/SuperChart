@@ -1,0 +1,26 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:2:1-10:12
+INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:2:1-10:12
+	package
+		INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:4:5-5:38
+	android:maxSdkVersion
+		ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:5:9-35
+	android:name
+		ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:4:22-78
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:8:5-77
+	android:name
+		ADDED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml:8:22-74
+uses-sdk
+INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml
+INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/orange/AndroidStudioProjects/SuperChart/superchart/src/main/AndroidManifest.xml

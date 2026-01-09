@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.superchart-release-41:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/orange/.gradle/caches/8.13/transforms/37ceca3616138f04507df53da544dbde/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.superchart-mergeReleaseResources-39:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/orange/.gradle/caches/8.13/transforms/37ceca3616138f04507df53da544dbde/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}
