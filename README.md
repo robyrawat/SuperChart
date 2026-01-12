@@ -1,6 +1,10 @@
-# SuperChart
+# SuperChart – Jetpack Compose Chart Library for Android
 
-A Jetpack Compose charting library for Android.
+A modern Android charting library built with Jetpack Compose, featuring **interactive charts, accessibility, animations, and export functionality**.
+
+![Kotlin](https://img.shields.io/badge/Kotlin-100%25-blue)
+![Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-green)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
 ## Features
 
@@ -20,7 +24,7 @@ A Jetpack Compose charting library for Android.
 
 ```gradle
 dependencies {
-    implementation("com.superchart:superchart:1.0.0")
+       implementation("com.superchart:superchart:1.0.0") // Coming soon on Maven Central
 }
 ```
 
