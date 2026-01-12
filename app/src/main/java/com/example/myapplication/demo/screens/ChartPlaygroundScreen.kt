@@ -38,7 +38,8 @@ fun ChartPlaygroundScreen(
             maxValue = 100f,
             label = "Sample Data",
             color = state.chartColor,
-            useMonthLabels = true
+            useMonthLabels = true,
+            useMultipleColors = true
         )
 
         when (chartType) {
@@ -120,7 +121,7 @@ fun ChartPlaygroundScreen(
                             PieChart(
                                 dataset = state.datasets.first(),
                                 showLegend = state.showLegend,
-                                showLabels = state.showLabels,
+                                showLabels = state.showValueLabels,
                                 animationDurationMs = if (state.animationEnabled) state.animationDuration else 0,
                                 onSliceClick = { entryIndex, _ ->
                                     state.selectValue(0, entryIndex)
@@ -219,7 +220,8 @@ fun ChartPlaygroundScreen(
                             maxValue = 100f,
                             label = "Sample Data",
                             color = state.chartColor,
-                            useMonthLabels = newSize <= 12
+                            useMonthLabels = newSize <= 12,
+                            useMultipleColors = true
                         )
                         if (chartType == "pie") {
                             state.updateSingleDataset(dataset)
@@ -236,7 +238,8 @@ fun ChartPlaygroundScreen(
                             maxValue = 100f,
                             label = "Sample Data",
                             color = state.chartColor,
-                            useMonthLabels = size <= 12
+                            useMonthLabels = size <= 12,
+                            useMultipleColors = true
                         )
                         if (chartType == "pie") {
                             state.updateSingleDataset(dataset)
@@ -277,13 +280,15 @@ fun ChartPlaygroundScreen(
                     onColorSelected = { state.updateBackgroundColor(it) }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                if (chartType != "pie") {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                ColorPicker(
-                    label = "Grid Color",
-                    selectedColor = state.gridColor,
-                    onColorSelected = { state.updateGridColor(it) }
-                )
+                    ColorPicker(
+                        label = "Grid Color",
+                        selectedColor = state.gridColor,
+                        onColorSelected = { state.updateGridColor(it) }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -310,16 +315,6 @@ fun ChartPlaygroundScreen(
                     onWeightSelected = { state.updateFontWeight(it) }
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Show Labels", style = MaterialTheme.typography.bodyMedium)
-                    Switch(
-                        checked = state.showLabels,
-                        onCheckedChange = { state.toggleLabels() }
-                    )
-                }
 
                 HorizontalDivider()
 

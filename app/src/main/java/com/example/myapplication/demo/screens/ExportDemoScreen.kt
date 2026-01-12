@@ -21,8 +21,6 @@ import com.example.myapplication.demo.components.SectionHeader
 import com.example.myapplication.demo.utils.DemoDataGenerator
 import com.superchart.charts.BarChart
 import com.superchart.data.ChartDataset
-import com.superchart.export.ChartExporter
-import com.superchart.export.ExportConfig
 import com.superchart.export.rememberChartCaptureState
 import com.superchart.export.capturable
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +56,8 @@ fun ExportDemoScreen(
             maxValue = 100f,
             label = "Monthly Sales",
             color = Color(0xFF2196F3),
-            useMonthLabels = true
+            useMonthLabels = true,
+            useMultipleColors = true
         )
     }
 
@@ -334,40 +333,69 @@ fun ExportDemoScreen(
 private suspend fun exportPNG(
     context: Context,
     bitmap: Bitmap,
-    width: Int,
-    height: Int,
-    includeTitle: Boolean,
-    title: String?
+    @Suppress("UNUSED_PARAMETER") width: Int,
+    @Suppress("UNUSED_PARAMETER") height: Int,
+    @Suppress("UNUSED_PARAMETER") includeTitle: Boolean,
+    @Suppress("UNUSED_PARAMETER") title: String?
 ) {
     withContext(Dispatchers.IO) {
         try {
-            // Save to Downloads folder
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
-                android.os.Environment.DIRECTORY_DOWNLOADS
-            )
-            if (!downloadsDir.exists()) {
-                downloadsDir.mkdirs()
-            }
-
             val fileName = "SuperChart_${System.currentTimeMillis()}.png"
-            val file = File(downloadsDir, fileName)
 
-            // Save bitmap to file
-            file.outputStream().use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // Android 10+ - Use MediaStore
+                val resolver = context.contentResolver
+                val contentValues = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
+                        android.os.Environment.DIRECTORY_DOWNLOADS)
+                }
 
-            // Notify media scanner
-            val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            intent.data = android.net.Uri.fromFile(file)
-            context.sendBroadcast(intent)
+                val uri = resolver.insert(
+                    android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
 
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "✅ PNG saved to Downloads!\n$fileName",
-                    Toast.LENGTH_LONG
-                ).show()
+                uri?.let {
+                    resolver.openOutputStream(it)?.use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "✅ PNG saved to Downloads!\n$fileName",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } ?: throw Exception("Failed to create file")
+            } else {
+                // Android 9 and below - Use legacy approach
+                val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS
+                )
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+
+                val file = File(downloadsDir, fileName)
+                file.outputStream().use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+
+                // Notify media scanner
+                val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                intent.data = android.net.Uri.fromFile(file)
+                context.sendBroadcast(intent)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "✅ PNG saved to Downloads!\n$fileName",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -384,35 +412,65 @@ private suspend fun exportPNG(
 private suspend fun exportCSV(context: Context, dataset: ChartDataset) {
     withContext(Dispatchers.IO) {
         try {
-            // Save to Downloads folder
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
-                android.os.Environment.DIRECTORY_DOWNLOADS
-            )
-            if (!downloadsDir.exists()) {
-                downloadsDir.mkdirs()
-            }
-
             val fileName = "SuperChart_Data_${System.currentTimeMillis()}.csv"
-            val file = File(downloadsDir, fileName)
-
-            FileWriter(file).use { writer ->
-                writer.append("Label,Value\n")
+            val csvContent = buildString {
+                append("Label,Value\n")
                 dataset.entries.forEach { entry ->
-                    writer.append("${entry.label},${entry.value}\n")
+                    append("${entry.label},${entry.value}\n")
                 }
             }
 
-            // Notify media scanner
-            val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            intent.data = android.net.Uri.fromFile(file)
-            context.sendBroadcast(intent)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                val resolver = context.contentResolver
+                val contentValues = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
+                        android.os.Environment.DIRECTORY_DOWNLOADS)
+                }
 
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "✅ CSV saved to Downloads!\n$fileName",
-                    Toast.LENGTH_LONG
-                ).show()
+                val uri = resolver.insert(
+                    android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
+
+                uri?.let {
+                    resolver.openOutputStream(it)?.use { out ->
+                        out.write(csvContent.toByteArray())
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "✅ CSV saved to Downloads!\n$fileName",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } ?: throw Exception("Failed to create file")
+            } else {
+                val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS
+                )
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+
+                val file = File(downloadsDir, fileName)
+                FileWriter(file).use { writer ->
+                    writer.write(csvContent)
+                }
+
+                val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                intent.data = android.net.Uri.fromFile(file)
+                context.sendBroadcast(intent)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "✅ CSV saved to Downloads!\n$fileName",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -429,53 +487,80 @@ private suspend fun exportCSV(context: Context, dataset: ChartDataset) {
 private suspend fun exportJSON(context: Context, dataset: ChartDataset) {
     withContext(Dispatchers.IO) {
         try {
-            // Save to Downloads folder
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
-                android.os.Environment.DIRECTORY_DOWNLOADS
-            )
-            if (!downloadsDir.exists()) {
-                downloadsDir.mkdirs()
-            }
-
             val fileName = "SuperChart_Data_${System.currentTimeMillis()}.json"
-            val file = File(downloadsDir, fileName)
+            val jsonContent = buildString {
+                append("{\n")
+                append("  \"chartType\": \"bar\",\n")
+                append("  \"timestamp\": \"${System.currentTimeMillis()}\",\n")
+                append("  \"dataset\": {\n")
+                append("    \"label\": \"${dataset.label ?: "Data"}\",\n")
+                append("    \"entries\": [\n")
 
-            val jsonBuilder = StringBuilder()
-            jsonBuilder.append("{\n")
-            jsonBuilder.append("  \"chartType\": \"bar\",\n")
-            jsonBuilder.append("  \"timestamp\": \"${System.currentTimeMillis()}\",\n")
-            jsonBuilder.append("  \"dataset\": {\n")
-            jsonBuilder.append("    \"label\": \"${dataset.label ?: "Data"}\",\n")
-            jsonBuilder.append("    \"entries\": [\n")
-
-            dataset.entries.forEachIndexed { index, entry ->
-                jsonBuilder.append("      {\n")
-                jsonBuilder.append("        \"label\": \"${entry.label}\",\n")
-                jsonBuilder.append("        \"value\": ${entry.value}\n")
-                jsonBuilder.append("      }")
-                if (index < dataset.entries.size - 1) {
-                    jsonBuilder.append(",")
+                dataset.entries.forEachIndexed { index, entry ->
+                    append("      {\n")
+                    append("        \"label\": \"${entry.label}\",\n")
+                    append("        \"value\": ${entry.value}\n")
+                    append("      }")
+                    if (index < dataset.entries.size - 1) {
+                        append(",")
+                    }
+                    append("\n")
                 }
-                jsonBuilder.append("\n")
+
+                append("    ]\n")
+                append("  }\n")
+                append("}\n")
             }
 
-            jsonBuilder.append("    ]\n")
-            jsonBuilder.append("  }\n")
-            jsonBuilder.append("}\n")
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                val resolver = context.contentResolver
+                val contentValues = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "application/json")
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
+                        android.os.Environment.DIRECTORY_DOWNLOADS)
+                }
 
-            file.writeText(jsonBuilder.toString())
+                val uri = resolver.insert(
+                    android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
 
-            // Notify media scanner
-            val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-            intent.data = android.net.Uri.fromFile(file)
-            context.sendBroadcast(intent)
+                uri?.let {
+                    resolver.openOutputStream(it)?.use { out ->
+                        out.write(jsonContent.toByteArray())
+                    }
 
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "✅ JSON saved to Downloads!\n$fileName",
-                    Toast.LENGTH_LONG
-                ).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "✅ JSON saved to Downloads!\n$fileName",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } ?: throw Exception("Failed to create file")
+            } else {
+                val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS
+                )
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+
+                val file = File(downloadsDir, fileName)
+                file.writeText(jsonContent)
+
+                val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                intent.data = android.net.Uri.fromFile(file)
+                context.sendBroadcast(intent)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "✅ JSON saved to Downloads!\n$fileName",
+                        Toast.LENGTH_LONG
+                        ).show()
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {

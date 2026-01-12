@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
-import androidx.core.view.drawToBitmap
 
 /**
  * State holder for chart capture operations.
@@ -70,15 +69,32 @@ fun Modifier.capturable(
     LaunchedEffect(captureState.isCapturing) {
         if (captureState.isCapturing && size.width > 0 && size.height > 0) {
             try {
-                // Find the ComposeView and capture it
-                val composeView = findComposeView(view)
-                if (composeView != null) {
-                    val bitmap = composeView.drawToBitmap()
-                    captureState.onBitmapCaptured(bitmap)
-                    onCaptured(bitmap)
-                } else {
-                    captureState.onCaptureError("Could not find compose view")
-                }
+                // Capture the root view and crop to the chart area
+                val rootView = view.rootView
+                val location = IntArray(2)
+                view.getLocationInWindow(location)
+
+                val fullBitmap = Bitmap.createBitmap(
+                    rootView.width,
+                    rootView.height,
+                    Bitmap.Config.ARGB_8888
+                )
+                val canvas = android.graphics.Canvas(fullBitmap)
+                rootView.draw(canvas)
+
+                // Crop to the chart area
+                val chartBitmap = Bitmap.createBitmap(
+                    fullBitmap,
+                    location[0],
+                    location[1],
+                    size.width.coerceAtMost(fullBitmap.width - location[0]),
+                    size.height.coerceAtMost(fullBitmap.height - location[1])
+                )
+
+                fullBitmap.recycle()
+
+                captureState.onBitmapCaptured(chartBitmap)
+                onCaptured(chartBitmap)
             } catch (e: Exception) {
                 captureState.onCaptureError("Capture failed: ${e.message}")
             }

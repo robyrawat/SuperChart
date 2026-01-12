@@ -15,13 +15,38 @@ object DemoDataGenerator {
 
     private val dayLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
+    // Vibrant color palette for chart entries
+    private val colorPalette = listOf(
+        Color(0xFF2196F3), // Blue
+        Color(0xFFFF5722), // Deep Orange
+        Color(0xFF4CAF50), // Green
+        Color(0xFFFFC107), // Amber
+        Color(0xFF9C27B0), // Purple
+        Color(0xFFFF9800), // Orange
+        Color(0xFFE91E63), // Pink
+        Color(0xFF00BCD4), // Cyan
+        Color(0xFF8BC34A), // Light Green
+        Color(0xFFFF5252), // Red
+        Color(0xFF536DFE), // Indigo
+        Color(0xFFFFEB3B), // Yellow
+        Color(0xFF009688), // Teal
+        Color(0xFFFF4081), // Pink Accent
+        Color(0xFF7C4DFF), // Deep Purple
+        Color(0xFF26C6DA), // Cyan Light
+        Color(0xFFAB47BC), // Purple Light
+        Color(0xFFEF5350), // Red Light
+        Color(0xFF66BB6A), // Green Light
+        Color(0xFFFFCA28)  // Amber Light
+    )
+
     fun generateDataset(
         count: Int,
         minValue: Float = 0f,
         maxValue: Float = 100f,
         label: String = "Dataset",
         color: Color = Color.Blue,
-        useMonthLabels: Boolean = false
+        useMonthLabels: Boolean = false,
+        useMultipleColors: Boolean = true
     ): ChartDataset {
         require(count > 0) { "Count must be positive" }
         require(maxValue > minValue) { "Max value must be greater than min value" }
@@ -34,9 +59,18 @@ object DemoDataGenerator {
             }
 
             val value = Random.nextFloat() * (maxValue - minValue) + minValue
+
+            // Assign different color to each entry
+            val entryColor = if (useMultipleColors) {
+                colorPalette[index % colorPalette.size]
+            } else {
+                null // Use dataset color
+            }
+
             ChartEntry(
                 label = itemLabel,
-                value = value
+                value = value,
+                color = entryColor
             )
         }
 

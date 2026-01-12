@@ -134,33 +134,34 @@ private fun PieChartCanvas(
         showLabels = showLabels
     )
 
-    val sliceData = remember { mutableStateListOf<SliceData>() }
+    val sliceData = remember(dataset, showLabels) { mutableStateListOf<SliceData>() }
 
-    Canvas(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(dataset, onSliceClick, animationProgress) {
-                if (onSliceClick != null) {
-                    detectTapGestures { offset ->
-                        val clicked = findClickedSlice(offset, sliceData)
-                        clicked?.let { (index, entry) ->
-                            // Validate index bounds before callback
-                            if (index >= 0 && index < dataset.entries.size) {
-                                onSliceClick(index, entry)
+    key(dataset, showLabels, animationProgress) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(dataset, onSliceClick, animationProgress) {
+                    if (onSliceClick != null) {
+                        detectTapGestures { offset ->
+                            val clicked = findClickedSlice(offset, sliceData)
+                            clicked?.let { (index, entry) ->
+                                // Validate index bounds before callback
+                                if (index >= 0 && index < dataset.entries.size) {
+                                    onSliceClick(index, entry)
+                                }
                             }
                         }
                     }
                 }
-            }
-    ) {
-        val chartSize = minOf(size.width, size.height)
-        val radius = chartSize / 2f
-        val center = Offset(size.width / 2f, size.height / 2f)
+        ) {
+            val chartSize = minOf(size.width, size.height)
+            val radius = chartSize / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
 
-        sliceData.clear()
-        var startAngle = -90f
+            sliceData.clear()
+            var startAngle = -90f
 
-        dataset.entries.forEachIndexed { index, entry ->
+            dataset.entries.forEachIndexed { index, entry ->
             val sweepAngle = (entry.value / total) * 360f * animationProgress
 
             if (sweepAngle > 0) {
@@ -280,6 +281,7 @@ private fun PieChartCanvas(
                 labelStartAngle += sweepAngle
             }
         }
+    }
     }
 }
 

@@ -1,2 +1,0 @@
-com.superchart
-xml file_provider_paths

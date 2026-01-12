@@ -83,13 +83,10 @@ PieChart(
 ```
 Here are some screenshots of SuperChart in action:
 
-![Line Chart](https://github.com/user-attachments/assets/2ee37486-6086-46c6-997c-adf3c80b400d)
-![Bar Chart](https://github.com/user-attachments/assets/e652d545-d46a-4c4e-a6b2-8a67da2ef3cc)
-![Pie Chart](https://github.com/user-attachments/assets/a954031b-d1e9-46fc-a0de-98d3e6a57015)
-![Demo Screen](https://github.com/user-attachments/assets/03b645e5-87be-4823-817f-e9b03f2654e0)
-
-
-
+![Line Chart](https://github.com/user-attachments/assets/eec143c9-f0f1-4049-90e6-1c120f4fcba6)
+![Bar Chart](https://github.com/user-attachments/assets/5da1034a-f102-4f2e-bd13-126542cd4fdc)
+![Pie Chart](https://github.com/user-attachments/assets/78ca1241-70c5-4548-a9eb-bf7e688c850c)
+![Demo Screen](https://github.com/user-attachments/assets/31c4a8ef-2992-450d-a2d3-1d63288b6382)
 
 
 ## License

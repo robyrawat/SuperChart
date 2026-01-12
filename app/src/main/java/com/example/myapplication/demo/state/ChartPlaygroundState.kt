@@ -36,7 +36,7 @@ class ChartPlaygroundState {
     var fontWeight by mutableStateOf(FontWeight.Normal)
         private set
 
-    var showLabels by mutableStateOf(true)
+    var showLabels by mutableStateOf(false)
         private set
 
     var animationEnabled by mutableStateOf(true)
@@ -185,10 +185,20 @@ class ChartPlaygroundState {
     fun addDataPoint(value: Float, label: String = "New") {
         if (datasets.isEmpty()) return
 
+        val colorPalette = listOf(
+            Color(0xFF2196F3), Color(0xFFFF5722), Color(0xFF4CAF50), Color(0xFFFFC107),
+            Color(0xFF9C27B0), Color(0xFFFF9800), Color(0xFFE91E63), Color(0xFF00BCD4),
+            Color(0xFF8BC34A), Color(0xFFFF5252), Color(0xFF536DFE), Color(0xFFFFEB3B),
+            Color(0xFF009688), Color(0xFFFF4081), Color(0xFF7C4DFF), Color(0xFF26C6DA),
+            Color(0xFFAB47BC), Color(0xFFEF5350), Color(0xFF66BB6A), Color(0xFFFFCA28)
+        )
+
         val updatedDatasets = datasets.mapIndexed { index, dataset ->
             if (index == 0) {
+                val newIndex = dataset.entries.size
+                val newColor = colorPalette[newIndex % colorPalette.size]
                 dataset.copy(
-                    entries = dataset.entries + ChartEntry(label, value)
+                    entries = dataset.entries + ChartEntry(label, value, newColor)
                 )
             } else {
                 dataset
